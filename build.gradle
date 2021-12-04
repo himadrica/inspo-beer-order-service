@@ -1,0 +1,73 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.asciidoctor.convert' version '1.5.8'
+    id 'java'
+}
+
+group = 'com.inspo.solutions'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+compileJava {
+    options.compilerArgs = [
+            '-Amapstruct.defaultComponentModel=spring'
+    ]
+}
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
+}
+
+dependencies {
+    def jaxbApiVersion = "2.3.1"
+    def jaxbCoreVersion = "3.0.2"
+    def jaxbImplVersion = "2.1"
+    def jupiterAPI = "5.8.1"
+    def jupiterEngine = "5.8.1"
+    def mapStructVersion = "1.4.2.Final"
+    def lombokVersion = "1.18.22"
+    def mapStructLombok = "0.2.0"
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
+    implementation "com.sun.xml.bind:jaxb-core:$jaxbCoreVersion"
+    implementation "javax.xml:jaxb-impl:$jaxbImplVersion"
+    implementation "org.projectlombok:lombok:$lombokVersion"
+    implementation "org.mapstruct:mapstruct:$mapStructVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:$mapStructLombok"
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test'){
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiterAPI"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:$jupiterEngine"
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
+
+test {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    dependsOn test
+}
